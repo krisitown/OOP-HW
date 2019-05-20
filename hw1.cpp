@@ -10,14 +10,14 @@ class Book {
 
     void copy(const Book& other){
         title = new char[strlen(other.title) + 1];
-        strcpy(other.title, title);
+        strcpy(title, other.title);
         numOfPages = other.numOfPages;
     }
 
 public:
     Book(char* _t=nullptr, int _n=0){
         title = new char[strlen(_t) + 1];
-        strcpy(_t, title);
+        strcpy(title, _t);
         numOfPages = _n;
     }
 
@@ -31,7 +31,7 @@ public:
 
     void setTitle(char* _t) {
         title = new char[strlen(_t) + 1];
-        strcpy(_t, title);
+        strcpy(title, _t);
     }
 
     void setNumberOfPages(int n) {
@@ -56,7 +56,7 @@ class EBook : public Book{
     int views;
 
 public:
-    EBook(char* _t, int _n, int _b, int _v) : Book(_t, _n){
+    EBook(char* _t="none", int _n=10, int _b=1024, int _v=100) : Book(_t, _n){
         bytes = _b;
         views = _v;
     }
@@ -100,6 +100,16 @@ class Library {
         copyBooks(temp, books);
     }
 
+    int _get(Book* book){
+        for(int i = 0; i < current; i++){
+            if(&books[i] == book){
+                return i;   
+            }
+        }
+
+        return -1;
+    }
+
 public:
     Library(int _size = 10){
         length = _size;
@@ -110,16 +120,41 @@ public:
     void add(Book* book){
         current++;
         if(current == length){
-            length *= 2;
+            _resize();
         }
 
+        books[current] = *book;
+    }
+
+    bool remove(Book* book){
+        int index = _get(book);
+        if(index == -1){return false;}
+        length--;
+        for(int i = index; i < current; i++){
+            books[i] = books[i+1];
+        }
+        return true;
+    }
+
+    float averagePages(){
+        int sum = 0;
+        for(int i = 0; i < current; i++){
+            sum += books[i].getNumberOfPages();
+        }
+        return ((float)sum)/((float)current);
+    }
+
+    Book operator[](int index){
+        return books[index];
     }
 };
 
-std::ostream &operator<<(std::ostream &os, const EBook &book){
+ostream &operator<<(ostream &os, const EBook &book){
     os << book.getTitle() << ": Pages: " << book.getNumberOfPages() << " , Size: " << book.getBytes() << ", Views: " << book.getViews() << endl;
 }
 
 int main(){
+    EBook b;
+    cout << b;
     return 0;
 }
