@@ -15,7 +15,7 @@ class Book {
     }
 
 public:
-    Book(char* _t=nullptr, int _n=0){
+    Book(char* _t="none", int _n=0){
         title = new char[strlen(_t) + 1];
         strcpy(title, _t);
         numOfPages = _n;
@@ -79,30 +79,30 @@ public:
 };
 
 class Library {
-    Book* books;
+    Book** books;
     int length;
     int current;
 
-    void copyBooks(Book* from, Book* to){
+    void copyBooks(Book** from, Book** to){
         for(int i = 0; i < length; i++){
             to[i] = from[i];
         }
     }
 
     void _resize(){
-        Book* temp = new Book[length];
+        Book** temp = new Book*[length];
         copyBooks(books, temp);
 
         delete[] books;
         length *= 2;
 
-        books = new Book[length];
+        books = new Book*[length];
         copyBooks(temp, books);
     }
 
     int _get(Book* book){
         for(int i = 0; i < current; i++){
-            if(&books[i] == book){
+            if(books[i] == book){
                 return i;   
             }
         }
@@ -114,7 +114,7 @@ public:
     Library(int _size = 10){
         length = _size;
         current = 0;
-        books = new Book[length];
+        books = new Book*[length];
     }
 
     void add(Book* book){
@@ -123,7 +123,7 @@ public:
             _resize();
         }
 
-        books[current] = *book;
+        books[current] = book;
     }
 
     bool remove(Book* book){
@@ -136,16 +136,16 @@ public:
         return true;
     }
 
-    float averagePages(){
+    float averagePages() {
         int sum = 0;
         for(int i = 0; i < current; i++){
-            sum += books[i].getNumberOfPages();
+            sum += books[i]->getNumberOfPages();
         }
         return ((float)sum)/((float)current);
     }
 
     Book operator[](int index){
-        return books[index];
+        return *(books)[index];
     }
 };
 
@@ -155,6 +155,17 @@ ostream &operator<<(ostream &os, const EBook &book){
 
 int main(){
     EBook b;
-    cout << b;
+    Book lotr("LotR", 699);
+    Library l;
+    l.add(&lotr);
+    l.add(&b);
+    cout << l[1];
+
+    if(lotr < b){
+        cout << "LotR < none" << endl;
+    } else {
+        cout << "LotR >= none" << endl;
+    }
+
     return 0;
 }
